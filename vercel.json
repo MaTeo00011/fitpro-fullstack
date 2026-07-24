@@ -1,0 +1,30 @@
+{
+  "version": 3,
+  "builds": [
+    {
+      "src": "todoapp/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "todoapp/dist/todoapp/browser",
+        "buildCommand": "cd todoapp && npm run build:vercel"
+      }
+    },
+    {
+      "src": "api/[...path].js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
