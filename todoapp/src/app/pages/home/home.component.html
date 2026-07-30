@@ -1,0 +1,310 @@
+<!-- Header con carrito -->
+<header class="top-header">
+  <div class="header-content">
+    <div class="logo-and-nav">
+      <h3 class="logo">💪 FitPro</h3>
+      <nav class="main-nav">
+        <a routerLink="/home">Inicio</a>
+        <a routerLink="/home#productos">Tienda</a>
+        <a routerLink="/register">Registro</a>
+        <a routerLink="/admin/login">Admin</a>
+      </nav>
+    </div>
+    <div class="user-info">
+      <!-- Mostrar nombre del usuario si está logueado -->
+      <div *ngIf="currentUser && currentUser.role === 'user'" class="user-greeting">
+        <div class="user-welcome">
+          <span class="welcome-text">¡Hola, {{ currentUser.username }}!</span>
+          <span *ngIf="currentUser.status" class="status-pill" [ngClass]="currentUser.status">
+            {{ currentUser.status | titlecase }}
+          </span>
+        </div>
+        <button (click)="logoutUser()" class="logout-btn">Cerrar sesión</button>
+      </div>
+      <!-- Mostrar opciones de admin si está logueado como admin -->
+      <div *ngIf="isAdmin" class="admin-info">
+        <span class="admin-text">Modo Administrador</span>
+        <button (click)="logoutAdmin()" class="logout-btn">Cerrar sesión</button>
+      </div>
+    </div>
+    <button class="cart-button" (click)="openCart()">
+      🛒
+      <span class="cart-badge" *ngIf="(cartService.cartItems$ | async)?.length ?? 0 as itemCount">
+        {{ itemCount }}
+      </span>
+    </button>
+  </div>
+</header>
+
+<!-- Hero Section con Carrusel -->
+<section class="hero" 
+  (mouseenter)="onMouseEnter()" 
+  (mouseleave)="onMouseLeave()">
+  
+  <!-- Carrusel de imágenes de fondo -->
+  <div class="carousel">
+    <div class="carousel-slides">
+      <div 
+        class="carousel-slide"
+        *ngFor="let slide of slides; let i = index"
+        [class.active]="i === currentSlide"
+        [style.background-image]="'url(' + slide.image + ')'">
+        
+        <!-- Overlay oscuro para legibilidad -->
+        <div class="carousel-overlay"></div>
+      </div>
+    </div>
+
+    <!-- Controles del carrusel (flechas) -->
+    <button class="carousel-control prev" (click)="prevSlide()">
+      ‹
+    </button>
+    <button class="carousel-control next" (click)="nextSlide()">
+      ›
+    </button>
+
+    <!-- Indicadores (dots) -->
+    <div class="carousel-indicators">
+      <button 
+        *ngFor="let slide of slides; let i = index"
+        class="indicator"
+        [class.active]="i === currentSlide"
+        (click)="goToSlide(i)">
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenido sobre el carrusel -->
+  <div class="hero-content">
+    <h1 class="floating">{{ slides[currentSlide].title }}</h1>
+    <p>{{ slides[currentSlide].subtitle }}</p>
+    <!--<a routerLink="/register" class="cta-button">Únete al Gym</a>-->
+  </div>
+</section>
+
+<!-- Productos -->
+<section class="products" id="productos">
+  <h2 class="section-title">Nuestros Productos Estrella</h2>
+  <p class="section-subtitle">Calidad profesional para resultados extraordinarios</p>
+  
+  <!-- Barra de búsqueda y filtros -->
+  <div class="search-section">
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input 
+        type="text" 
+        placeholder="Buscar productos..." 
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        class="search-input">
+      <button class="filter-toggle" (click)="toggleFilters()">
+        ⚙️ Filtros
+      </button>
+    </div>
+
+    <!-- Panel de filtros (colapsable) -->
+    <div class="filters-panel" *ngIf="showFilters">
+      <div class="filter-group">
+        <label>Categoría</label>
+        <select [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange()" class="filter-select">
+          <option value="">Todas las categorías</option>
+          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Moneda</label>
+        <select [(ngModel)]="selectedCurrency" (ngModelChange)="onCurrencyChange()" class="filter-select">
+          <option value="">Todas las monedas</option>
+          <option *ngFor="let currency of currencyOptions" [value]="currency">{{ currency }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Stock</label>
+        <select [(ngModel)]="selectedStock" (ngModelChange)="onStockChange()" class="filter-select">
+          <option value="all">Todos</option>
+          <option value="in">Disponibles</option>
+          <option value="out">Agotados</option>
+        </select>
+      </div>
+
+      <div class="filter-row currency-filters-row">
+        <div class="filter-group">
+          <label>Precio máximo USD: ${{ priceFilter.USD.max | number:'1.0-0' }}</label>
+          <input 
+            type="range" 
+            min="0" 
+            [max]="maxPriceByCurrency.USD || 1" 
+            step="1"
+            [(ngModel)]="priceFilter.USD.max"
+            (ngModelChange)="onPriceChange()"
+            class="price-slider"
+            [disabled]="maxPriceByCurrency.USD === 0">
+        </div>
+
+        <div class="filter-group currency-filter-cop">
+          <label>Precio máximo COP: ${{ priceFilter.COP.max | number:'1.0-0' }}</label>
+          <input 
+            type="range" 
+            min="0" 
+            [max]="maxPriceByCurrency.COP || 1" 
+            step="1"
+            [(ngModel)]="priceFilter.COP.max"
+            (ngModelChange)="onPriceChange()"
+            class="price-slider"
+            [disabled]="maxPriceByCurrency.COP === 0">
+        </div>
+      </div>
+
+      <button class="reset-btn" (click)="resetFilters()">
+        ↺ Limpiar Filtros
+      </button>
+    </div>
+
+    <!-- Contador de resultados -->
+    <div class="results-info">
+      {{ getResultsText() }}
+    </div>
+  </div>
+  
+  <ng-container *ngIf="filteredProducts.length > 0; else noResults">
+    <div class="product-grid">
+      <div class="product-card" *ngFor="let product of filteredProducts">
+        <!-- Mostrar imagen si existe, sino emoji -->
+        <div class="product-image-container" *ngIf="product.image; else showIcon">
+          <img [src]="product.image" [alt]="product.name" class="product-image">
+        </div>
+        <ng-template #showIcon>
+          <span class="product-icon">{{ product.icon }}</span>
+        </ng-template>
+      
+      <h3>{{ product.name }}</h3>
+      <p>{{ product.description }}</p>
+      <div class="product-meta">
+        <div class="price">
+          <span *ngIf="product.currency === 'COP'; else showUSD">
+            ${{ product.price.toLocaleString('es-CO') }} COP
+          </span>
+          <ng-template #showUSD>
+            ${{ product.price.toFixed(2) }} USD
+          </ng-template>
+        </div>
+        <div class="stock-label" [class.out-of-stock]="product.stock === 0">
+          <span *ngIf="product.stock > 0">{{ product.stock }} disponibles</span>
+          <span *ngIf="product.stock === 0">Agotado</span>
+        </div>
+      </div>
+
+      <div class="product-actions">
+        <button 
+          class="buy-button" 
+          (click)="addToCart(product)"
+          [disabled]="product.stock === 0">
+          {{ product.stock === 0 ? 'No disponible' : 'Añadir al Carrito' }}
+        </button>
+        <a class="detail-button" [routerLink]="['/product', product.id]">Ver Detalle</a>
+      </div>
+    </div>
+    </div>
+  </ng-container>
+
+  <!-- Plantilla para sin resultados -->
+  <ng-template #noResults>
+    <div class="no-results">
+      <div class="no-results-icon">🔍</div>
+      <h3>No se encontraron productos</h3>
+      <p>Intenta cambiar tus filtros o términos de búsqueda</p>
+      <button class="btn-reset" (click)="resetFilters()">Limpiar Filtros</button>
+    </div>
+  </ng-template>
+</section>
+
+<section class="order-history">
+  <div class="section-header">
+    <h2 class="section-title">Historial de Pedidos</h2>
+    <p class="section-subtitle">Revisa las compras recientes registradas en el sistema.</p>
+  </div>
+
+  <ng-container *ngIf="serverSales.length > 0; else localHistory">
+    <p class="history-note">Pedidos guardados en el servidor para tu cuenta.</p>
+    <div class="order-card" *ngFor="let sale of serverSales | slice: -5">
+      <div class="order-info">
+        <div class="order-date">{{ sale.createdAt | date:'medium' }}</div>
+        <div class="order-items">Productos: {{ sale.items.length }}</div>
+        <div class="order-shipping" *ngIf="sale.shippingCost !== undefined">
+          Envío: {{ formatSalePrice(sale.shippingCost, sale.currency) }}
+        </div>
+        <div class="order-total">Total: {{ formatSalePrice(sale.total, sale.currency) }}</div>
+        <div class="order-actions" *ngIf="sale.id">
+          <a [routerLink]="['/order', sale.id]" class="order-detail-link">Ver detalle</a>
+        </div>
+      </div>
+      <div class="order-products">
+        <span *ngFor="let item of sale.items; let i = index">
+          {{ item.name }} x{{ item.quantity }}<span *ngIf="i < sale.items.length - 1">, </span>
+        </span>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #localHistory>
+    <div *ngIf="(sales$ | async) as sales">
+      <p *ngIf="currentUser && sales.length === 0" class="history-note">No se encontraron pedidos en el servidor. Aquí está tu historial local.</p>
+      <div *ngIf="sales.length > 0; else noOrders">
+        <div class="order-card" *ngFor="let sale of sales | slice: -5">
+          <div class="order-info">
+            <div class="order-date">{{ sale.date | date:'medium' }}</div>
+            <div class="order-items">Productos: {{ sale.items.length }}</div>
+            <div class="order-shipping" *ngIf="sale.shippingCost !== undefined">
+              Envío: {{ formatSalePrice(sale.shippingCost, sale.currency) }}
+            </div>
+            <div class="order-total">Total: {{ formatSalePrice(sale.total, sale.currency) }}</div>
+          </div>
+          <div class="order-products">
+            <span *ngFor="let item of sale.items; let i = index">
+              {{ item.name }} x{{ item.quantity }}<span *ngIf="i < sale.items.length - 1">, </span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noOrders>
+        <div class="no-orders">
+          <p>Por ahora no hay pedidos registrados. Realiza una compra para que aparezca aquí.</p>
+        </div>
+      </ng-template>
+    </div>
+  </ng-template>
+</section>
+
+<!-- Features -->
+<section class="features">
+  <h2 class="section-title">¿Por Qué Elegirnos?</h2>
+  
+  <div class="features-grid">
+    <div class="feature-item">
+      <div class="feature-icon">✅</div>
+      <h3>Calidad Garantizada</h3>
+      <p>Productos certificados y probados</p>
+    </div>
+    
+    <div class="feature-item">
+      <div class="feature-icon">🚚</div>
+      <h3>Envío Rápido</h3>
+      <p>24-48 horas en toda Colombia</p>
+    </div>
+    
+    <div class="feature-item">
+      <div class="feature-icon">💰</div>
+      <h3>Mejor Precio</h3>
+      <p>Sin comprometer la calidad</p>
+    </div>
+    
+    <div class="feature-item">
+      <div class="feature-icon">🏆</div>
+      <h3>Soporte Experto</h3>
+      <p>Asesoría personalizada</p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,343 @@
+<div class="admin-container">
+  <div class="admin-header">
+    <button class="back-btn" (click)="goBack()" title="Volver al Dashboard">← Volver</button>
+    <h1 class="admin-title">Administración de Usuarios Gym</h1>
+    <p class="admin-subtitle">Gestiona los usuarios registrados y sus estados de pago</p>
+  </div>
+
+  <div class="users-table-container">
+    <!-- Controles de búsqueda y filtros -->
+    <div class="filters-section">
+      <div class="search-group">
+        <input 
+          type="text" 
+          placeholder="Buscar por nombre o apellidos..." 
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+          class="search-input">
+        <span class="search-icon">🔍</span>
+      </div>
+      
+      <div class="filter-group">
+        <div class="results-count">
+          Mostrando {{ filteredUsers.length }} de {{ users.length }} usuarios
+        </div>
+        
+        <select [(ngModel)]="statusFilter" (change)="applyFilters()" class="filter-select">
+          <option value="">Todos los estados</option>
+          <option value="active">Al día</option>
+          <option value="expiring">Por expirar</option>
+          <option value="expired">Expirado</option>
+        </select>
+        
+        <select [(ngModel)]="trainingFilter" (change)="applyFilters()" class="filter-select">
+          <option value="">Todos los entrenamientos</option>
+          <option value="general">Entrenador General</option>
+          <option value="personalized">Personalizado</option>
+        </select>
+        
+        <button (click)="clearFilters()" class="clear-filters-btn">🗑️ Limpiar</button>
+      </div>
+    </div>
+
+    <!-- Botón para agregar usuario -->
+    <div class="add-user-section">
+      <button class="add-user-btn" (click)="openAddModal()">
+        ➕ Agregar Usuario
+      </button>
+    </div>
+    
+    <!-- TABLA DESKTOP (visible en pantallas > 768px) -->
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Nombre y Apellidos</th>
+          <th>Edad</th>
+          <th>Teléfono</th>
+          <th>Tipo de Entrenamiento</th>
+          <th>Estado de Pago</th>
+          <th>Estado de Pago Animado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers" [class]="getStatusClass(user.status)">
+          <td>{{ user.firstName }} {{ user.lastName }}</td>
+          <td>{{ user.age }}</td>
+          <td>{{ user.phone }}</td>
+          <td>
+            {{ user.trainingType === 'general' ? 'Entrenador General' : 'Personalizado' }}
+            <span *ngIf="user.trainingType === 'personalized' && user.personalizedDetails">
+              ({{ user.personalizedDetails.type }})
+            </span>
+          </td>
+          <td>
+            <span class="status-text" [class]="getStatusClass(user.status)">
+              {{ user.status === 'active' ? 'Al día' : user.status === 'expiring' ? 'Por expirar' : 'Expirado' }}
+            </span>
+            <br>
+            <small class="payment-info">
+              {{ user.paymentType }} - Hasta {{ formatDate(user.paymentEnd) }}
+            </small>
+          </td>
+          <td class="emoji-cell">
+            <span class="animated-emoji" [class]="getStatusClass(user.status)">
+              {{ getStatusEmoji(user.status) }}
+            </span>
+          </td>
+          <td>
+            <button class="edit-btn" (click)="openEditModal(user)">
+              ✏️ Editar
+            </button>
+            <button class="delete-btn" (click)="deleteUser(user.id)">
+              🗑️ Eliminar
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredUsers.length === 0 && users.length > 0">
+          <td colspan="7" class="no-users">
+            No se encontraron usuarios que coincidan con los filtros aplicados.
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0">
+          <td colspan="7" class="no-users">
+            No hay usuarios registrados aún. Ve a <a href="/register" target="_blank">Registro</a> para agregar el primero.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- CARDS MOBILE (visible solo en pantallas < 768px) -->
+    <div class="users-cards">
+      <div *ngIf="filteredUsers.length === 0 && users.length > 0" class="empty-message">
+        No se encontraron usuarios que coincidan con los filtros aplicados.
+      </div>
+      <div *ngIf="users.length === 0" class="empty-message">
+        No hay usuarios registrados aún.
+      </div>
+
+      <div *ngFor="let user of filteredUsers" class="user-card" [class]="getStatusClass(user.status)">
+        <div class="card-header">
+          <div class="card-name">{{ user.firstName }} {{ user.lastName }}</div>
+          <span class="card-status-emoji" [class]="getStatusClass(user.status)">
+            {{ getStatusEmoji(user.status) }}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <div class="card-field">
+            <span class="card-label">Edad:</span>
+            <span class="card-value">{{ user.age }} años</span>
+          </div>
+
+          <div class="card-field">
+            <span class="card-label">Teléfono:</span>
+            <span class="card-value">{{ user.phone }}</span>
+          </div>
+
+          <div class="card-field">
+            <span class="card-label">Entrenamiento:</span>
+            <span class="card-value">
+              {{ user.trainingType === 'general' ? 'Entrenador General' : 'Personalizado' }}
+              <span *ngIf="user.trainingType === 'personalized' && user.personalizedDetails">
+                ({{ user.personalizedDetails.type }})
+              </span>
+            </span>
+          </div>
+
+          <div class="card-field">
+            <span class="card-label">Estado de Pago:</span>
+            <span class="card-status" [class]="getStatusClass(user.status)">
+              {{ user.status === 'active' ? '✓ Al día' : user.status === 'expiring' ? '⚠️ Por expirar' : '✕ Expirado' }}
+            </span>
+          </div>
+
+          <div class="card-field">
+            <span class="card-label">Detalles:</span>
+            <span class="card-value">{{ user.paymentType }} - Hasta {{ formatDate(user.paymentEnd) }}</span>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button class="btn-card-edit" (click)="openEditModal(user)">
+            ✏️ Editar
+          </button>
+          <button class="btn-card-delete" (click)="deleteUser(user.id)">
+            🗑️ Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leyenda de colores -->
+  <div class="legend">
+    <h3>Leyenda de Estados</h3>
+    <div class="legend-items">
+      <div class="legend-item">
+        <span class="legend-emoji status-active">😊</span>
+        <span>Al día (verde)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-emoji status-expiring">😐</span>
+        <span>Por expirar (amarillo)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-emoji status-expired">😠</span>
+        <span>Expirado (rojo)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de edición -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Editar Usuario</h2>
+      <button class="close-btn" (click)="closeEditModal()">×</button>
+    </div>
+
+    <form class="edit-form" *ngIf="editingUser" (ngSubmit)="saveUserChanges()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Nombre:</label>
+          <input type="text" id="firstName" [(ngModel)]="editingUser.firstName" name="firstName" required>
+        </div>
+        <div class="form-group">
+          <label for="lastName">Apellidos:</label>
+          <input type="text" id="lastName" [(ngModel)]="editingUser.lastName" name="lastName" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="age">Edad:</label>
+          <input type="number" id="age" [(ngModel)]="editingUser.age" name="age" required min="1" max="120">
+        </div>
+        <div class="form-group">
+          <label for="phone">Teléfono:</label>
+          <input type="tel" id="phone" [(ngModel)]="editingUser.phone" name="phone" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="trainingType">Tipo de Entrenamiento:</label>
+        <select id="trainingType" [(ngModel)]="editingUser.trainingType" name="trainingType" (change)="onTrainingTypeChange()">
+          <option value="general">Entrenador General</option>
+          <option value="personalized">Personalizado</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="editingUser.trainingType === 'personalized'">
+        <label for="personalizedType">Tipo de Entrenamiento Personalizado:</label>
+        <select id="personalizedType" [ngModel]="editingUser.personalizedDetails?.type" (ngModelChange)="editingUser.personalizedDetails!.type = $event" name="personalizedType">
+          <option value="fuerza">Fuerza</option>
+          <option value="bajar_peso">Bajar de Peso</option>
+          <option value="definicion">Definición</option>
+          <option value="resistencia">Resistencia</option>
+          <option value="tonificacion">Tonificación</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="paymentType">Tipo de Pago:</label>
+        <select id="paymentType" [(ngModel)]="editingUser.paymentType" name="paymentType" (change)="onPaymentTypeChange()">
+          <option value="dia">Día</option>
+          <option value="semana">Semana</option>
+          <option value="mes">Mes</option>
+          <option value="trimestre">Trimestre</option>
+          <option value="semestre">Semestre</option>
+          <option value="ano">Año</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="paymentStart">Fecha de Inicio de Pago:</label>
+        <input type="date" id="paymentStart" [ngModel]="formatDateForInput(editingUser.paymentStart)" 
+               (ngModelChange)="editingUser.paymentStart = parseDateFromInput($event)" name="paymentStart" required>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" (click)="closeEditModal()">Cancelar</button>
+        <button type="submit" class="save-btn">💾 Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para agregar usuario -->
+<div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Agregar Nuevo Usuario</h2>
+      <button class="close-btn" (click)="closeAddModal()">×</button>
+    </div>
+
+    <form class="edit-form" (ngSubmit)="saveNewUser()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="newFirstName">Nombre:</label>
+          <input type="text" id="newFirstName" [(ngModel)]="newUser.firstName" name="firstName" required>
+        </div>
+        <div class="form-group">
+          <label for="newLastName">Apellidos:</label>
+          <input type="text" id="newLastName" [(ngModel)]="newUser.lastName" name="lastName" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="newAge">Edad:</label>
+          <input type="number" id="newAge" [(ngModel)]="newUser.age" name="age" required min="1" max="120">
+        </div>
+        <div class="form-group">
+          <label for="newPhone">Teléfono:</label>
+          <input type="tel" id="newPhone" [(ngModel)]="newUser.phone" name="phone" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="newTrainingType">Tipo de Entrenamiento:</label>
+        <select id="newTrainingType" [(ngModel)]="newUser.trainingType" name="trainingType" (change)="onNewUserTrainingTypeChange()">
+          <option value="general">Entrenador General</option>
+          <option value="personalized">Personalizado</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="newUser.trainingType === 'personalized'">
+        <label for="newPersonalizedType">Tipo de Entrenamiento Personalizado:</label>
+        <select id="newPersonalizedType" [ngModel]="newUser.personalizedDetails?.type" (ngModelChange)="newUser.personalizedDetails!.type = $event" name="personalizedType">
+          <option value="fuerza">Fuerza</option>
+          <option value="bajar_peso">Bajar de Peso</option>
+          <option value="definicion">Definición</option>
+          <option value="resistencia">Resistencia</option>
+          <option value="tonificacion">Tonificación</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="newPaymentType">Tipo de Pago:</label>
+        <select id="newPaymentType" [(ngModel)]="newUser.paymentType" name="paymentType" (change)="onNewUserPaymentTypeChange()">
+          <option value="dia">Día</option>
+          <option value="semana">Semana</option>
+          <option value="mes">Mes</option>
+          <option value="trimestre">Trimestre</option>
+          <option value="semestre">Semestre</option>
+          <option value="ano">Año</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="newPaymentStart">Fecha de Inicio de Pago:</label>
+        <input type="date" id="newPaymentStart" [ngModel]="formatDateForInput(newUser.paymentStart!)" 
+               (ngModelChange)="newUser.paymentStart = parseDateFromInput($event)" name="paymentStart" required>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" (click)="closeAddModal()">Cancelar</button>
+        <button type="submit" class="save-btn">💾 Agregar Usuario</button>
+      </div>
+    </form>
+  </div>
+</div>

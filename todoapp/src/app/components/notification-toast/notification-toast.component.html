@@ -1,0 +1,8 @@
+<div class="toast-container" *ngIf="notification$ | async as notification">
+  <div class="toast" [ngClass]="'toast-' + notification.type">
+    <span class="toast-icon">
+      {{ notification.type === 'success' ? '✅' : notification.type === 'error' ? '⚠️' : 'ℹ️' }}
+    </span>
+    <div class="toast-message">{{ notification.message }}</div>
+  </div>
+</div>

@@ -1,0 +1,292 @@
+<!-- Sidebar (igual que dashboard) -->
+<aside class="sidebar" [class.open]="sidebarOpen">
+  <div class="sidebar-logo">
+    <h2>💪 FitPro Admin</h2>
+  </div>
+  <ul class="sidebar-menu">
+    <li class="menu-item">
+      <a routerLink="/admin/dashboard" routerLinkActive="active">
+        <span class="menu-icon">📊</span>
+        Dashboard
+      </a>
+    </li>
+    <li class="menu-item">
+      <a routerLink="/admin/productos" routerLinkActive="active">
+        <span class="menu-icon">🛍️</span>
+        Productos
+      </a>
+    </li>
+    <li class="menu-item">
+      <a routerLink="/admin/users" routerLinkActive="active">
+        <span class="menu-icon">👥</span>
+        Usuarios Gym
+      </a>
+    </li>
+    <li class="menu-item">
+      <a routerLink="/home">
+        <span class="menu-icon">🏠</span>
+        Ver Tienda
+      </a>
+    </li>
+  </ul>
+</aside>
+<div class="mobile-overlay" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
+
+<!-- Header -->
+<header class="top-header">
+  <button class="menu-btn" (click)="toggleSidebar()" aria-label="Abrir menú">☰</button>
+  <h1 class="header-title">Gestión de Productos</h1>
+  <div class="header-actions">
+    <div class="user-info">
+      <div class="user-avatar">👨‍💼</div>
+      <span>Admin</span>
+    </div>
+  </div>
+</header>
+
+<!-- Contenido Principal -->
+<main class="main-content">
+  
+  <!-- Sección de productos -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Lista de Productos</h2>
+        <p class="section-subtitle">Total: {{ products.length }} productos</p>
+      </div>
+      <button class="btn-primary" (click)="openAddModal()">
+        <span>+</span>
+        Agregar Producto
+      </button>
+    </div>
+
+    <!-- Tabla de productos -->
+    <div class="table-container" *ngIf="products.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Categoría</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products; let i = index">
+              <td>{{ i + 1 }}</td>
+            <td>
+              <div class="product-info">
+                <!-- Mostrar imagen si existe, sino emoji -->
+                <div class="product-image" *ngIf="product.image; else showIcon">
+                  <img [src]="product.image" [alt]="product.name">
+                </div>
+                <ng-template #showIcon>
+                  <span class="product-icon">{{ product.icon }}</span>
+                </ng-template>
+                <span>{{ product.name }}</span>
+              </div>
+            </td>
+            <td class="description-cell">{{ product.description }}</td>
+            <td class="price-cell">{{ formatPrice(product.price, product.currency) }}</td>
+            <td>
+              <span class="stock-badge" [class.low-stock]="product.stock < 10">
+                {{ product.stock }} unidades
+              </span>
+            </td>
+            <td>{{ product.category || 'Sin categoría' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn-icon btn-edit" (click)="openEditModal(product)" title="Editar">
+                  ✏️
+                </button>
+                <button class="btn-icon btn-delete" (click)="deleteProduct(product)" title="Eliminar">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mensaje si no hay productos -->
+    <div class="empty-state" *ngIf="products.length === 0">
+      <div class="empty-icon">📦</div>
+      <h3>No hay productos</h3>
+      <p>Agrega tu primer producto para comenzar</p>
+      <button class="btn-primary" (click)="openAddModal()">
+        <span>+</span>
+        Agregar Primer Producto
+      </button>
+    </div>
+  </section>
+
+</main>
+
+<!-- Modal de Agregar/Editar Producto -->
+<div class="modal-overlay" [class.active]="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    
+    <!-- Header del modal -->
+    <div class="modal-header">
+      <h2>{{ isEditMode ? '✏️ Editar Producto' : '➕ Agregar Producto' }}</h2>
+      <button class="close-btn" (click)="closeModal()">✕</button>
+    </div>
+
+    <!-- Formulario -->
+    <form class="product-form" (ngSubmit)="saveProduct()">
+      
+      <!-- NUEVO: Subida de Imagen -->
+      <div class="form-group">
+        <label>Imagen del Producto</label>
+        
+        <!-- Preview de imagen -->
+        <div class="image-upload-container">
+          <div class="image-preview" *ngIf="imagePreview">
+            <img [src]="imagePreview" alt="Preview">
+            <button type="button" class="remove-image-btn" (click)="removeImage()">
+              ✕
+            </button>
+          </div>
+          
+          <div class="upload-placeholder" *ngIf="!imagePreview" (click)="fileInput.click()">
+            <span class="upload-icon">📸</span>
+            <p>Haz clic para subir una imagen</p>
+            <small>JPG, PNG, GIF o WEBP (Max. 2MB)</small>
+          </div>
+          
+          <input 
+            #fileInput
+            type="file" 
+            id="imageUpload"
+            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+            (change)="onImageSelected($event)"
+            style="display: none;"
+          />
+          
+          <button 
+            type="button" 
+            class="btn-upload"
+            (click)="fileInput.click()"
+            *ngIf="!imagePreview"
+          >
+            📁 Seleccionar Imagen
+          </button>
+        </div>
+      </div>
+
+      <!-- Nombre -->
+      <div class="form-group">
+        <label for="name">Nombre del Producto *</label>
+        <input 
+          type="text" 
+          id="name"
+          [(ngModel)]="productForm.name"
+          name="name"
+          placeholder="Ej: Proteína Whey Pro"
+          required
+        />
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-group">
+        <label for="description">Descripción *</label>
+        <textarea 
+          id="description"
+          [(ngModel)]="productForm.description"
+          name="description"
+          rows="3"
+          placeholder="Describe las características del producto..."
+          required
+        ></textarea>
+      </div>
+
+      <!-- Precio y Moneda -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="price">Precio *</label>
+          <input 
+            type="number" 
+            id="price"
+            [(ngModel)]="productForm.price"
+            name="price"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="currency">Moneda</label>
+          <select 
+            id="currency"
+            [(ngModel)]="productForm.currency"
+            name="currency"
+          >
+            <option value="USD">Dólares (USD)</option>
+            <option value="COP">Pesos Colombianos (COP)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Stock y Categoría -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="stock">Stock Disponible *</label>
+          <input 
+            type="number" 
+            id="stock"
+            [(ngModel)]="productForm.stock"
+            name="stock"
+            min="0"
+            placeholder="0"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="category">Categoría</label>
+          <input 
+            type="text" 
+            id="category"
+            [(ngModel)]="productForm.category"
+            name="category"
+            placeholder="Ej: Proteínas"
+          />
+        </div>
+      </div>
+
+      <!-- Selector de Icono (fallback si no hay imagen) -->
+      <div class="form-group">
+        <label>Icono del Producto (opcional si tienes imagen)</label>
+        <div class="icon-selector">
+          <button 
+            type="button"
+            class="icon-option"
+            *ngFor="let icon of availableIcons"
+            [class.selected]="productForm.icon === icon"
+            (click)="selectIcon(icon)"
+          >
+            {{ icon }}
+          </button>
+        </div>
+        <small class="form-hint">Icono seleccionado: {{ productForm.icon }}</small>
+      </div>
+
+      <!-- Botones del formulario -->
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="closeModal()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn-primary">
+          {{ isEditMode ? '💾 Guardar Cambios' : '➕ Agregar Producto' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

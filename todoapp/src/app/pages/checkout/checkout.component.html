@@ -1,0 +1,238 @@
+<main class="checkout-page">
+  <!-- Header -->
+  <section class="checkout-header">
+    <div>
+      <h1>Finalizar Compra</h1>
+      <p>Paso {{ currentStep === 'review' ? 1 : currentStep === 'shipping' ? 2 : currentStep === 'payment' ? 3 : 4 }} de 4</p>
+    </div>
+    <!-- Indicador de progreso -->
+    <div class="progress-indicator">
+      <div class="step" [class.active]="currentStep === 'review' || currentStep === 'shipping' || currentStep === 'payment' || currentStep === 'confirm'">1</div>
+      <div class="step" [class.active]="currentStep === 'shipping' || currentStep === 'payment' || currentStep === 'confirm'">2</div>
+      <div class="step" [class.active]="currentStep === 'payment' || currentStep === 'confirm'">3</div>
+      <div class="step" [class.active]="currentStep === 'confirm'">4</div>
+    </div>
+  </section>
+
+  <!-- Contenido según el paso actual -->
+  <section class="checkout-content">
+
+    <!-- STEP 1: Review Pedido -->
+    <div class="step-content" *ngIf="currentStep === 'review'">
+      <h2>Resumen de tu Pedido</h2>
+      <div class="order-items">
+        <div class="item" *ngFor="let item of cartItems">
+          <div class="item-details">
+            <span class="item-icon">{{ item.icon }}</span>
+            <div>
+              <h3>{{ item.name }}</h3>
+              <p>{{ item.quantity }} unidad{{ item.quantity > 1 ? 'es' : '' }} × {{ formatPrice(item.price) }}</p>
+            </div>
+          </div>
+          <span class="item-total">{{ getItemSubtotal(item) }}</span>
+        </div>
+      </div>
+
+      <div class="order-total">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <strong>{{ formatPrice(cartTotal) }}</strong>
+        </div>
+        <div class="total-row">
+          <span>Envío:</span>
+          <strong>{{ getShippingLabel(cartTotal, currency) }}</strong>
+        </div>
+        <div class="total-row final">
+          <span>Total:</span>
+          <strong>{{ formatPrice(getOrderTotal(cartTotal, currency)) }}</strong>
+        </div>
+      </div>
+      <div class="shipping-note">
+        <p>
+          Envío gratis en compras superiores a {{ formatPrice(getShippingThreshold(currency)) }}.
+        </p>
+      </div>
+    </div>
+
+    <!-- STEP 2: Información de Envío -->
+    <div class="step-content" *ngIf="currentStep === 'shipping'">
+      <h2>Información de Envío</h2>
+      <form class="form-group">
+        <div class="form-row">
+          <div class="form-field">
+            <label for="email">Email</label>
+            <input 
+              type="email" 
+              id="email" 
+              [(ngModel)]="customerInfo.email" 
+              name="email"
+              placeholder="tu@email.com">
+          </div>
+          <div class="form-field">
+            <label for="fullName">Nombre Completo</label>
+            <input 
+              type="text" 
+              id="fullName" 
+              [(ngModel)]="customerInfo.fullName" 
+              name="fullName"
+              placeholder="Tu nombre">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="phone">Teléfono</label>
+            <input 
+              type="tel" 
+              id="phone" 
+              [(ngModel)]="customerInfo.phone" 
+              name="phone"
+              placeholder="+57 300 000 0000">
+          </div>
+          <div class="form-field">
+            <label for="city">Ciudad</label>
+            <input 
+              type="text" 
+              id="city" 
+              [(ngModel)]="customerInfo.city" 
+              name="city"
+              placeholder="Bogotá, Medellín, etc.">
+          </div>
+        </div>
+
+        <div class="form-row full">
+          <div class="form-field">
+            <label for="address">Dirección de Envío</label>
+            <input 
+              type="text" 
+              id="address" 
+              [(ngModel)]="customerInfo.address" 
+              name="address"
+              placeholder="Cra. 1 # 2-34, Apto 101">
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- STEP 3: Método de Pago -->
+    <div class="step-content" *ngIf="currentStep === 'payment'">
+      <h2>Selecciona tu Método de Pago</h2>
+      <div class="payment-methods">
+        <label class="payment-option">
+          <input 
+            type="radio" 
+            value="nequi" 
+            [(ngModel)]="customerInfo.paymentMethod"
+            name="paymentMethod">
+          <div class="payment-card">
+            <span class="payment-icon">📱</span>
+            <div class="payment-info">
+              <h3>Nequi</h3>
+              <p>Pago rápido con tu app Nequi</p>
+            </div>
+          </div>
+        </label>
+
+        <label class="payment-option">
+          <input 
+            type="radio" 
+            value="card" 
+            [(ngModel)]="customerInfo.paymentMethod"
+            name="paymentMethod">
+          <div class="payment-card">
+            <span class="payment-icon">💳</span>
+            <div class="payment-info">
+              <h3>Tarjeta de Crédito</h3>
+              <p>Visa, MasterCard, American Express</p>
+            </div>
+          </div>
+        </label>
+
+        <label class="payment-option">
+          <input 
+            type="radio" 
+            value="transfer" 
+            [(ngModel)]="customerInfo.paymentMethod"
+            name="paymentMethod">
+          <div class="payment-card">
+            <span class="payment-icon">🏦</span>
+            <div class="payment-info">
+              <h3>Transferencia Bancaria</h3>
+              <p>Directamente desde tu cuenta bancaria</p>
+            </div>
+          </div>
+        </label>
+      </div>
+
+      <div class="payment-summary">
+        <h3>Resumen del Pago</h3>
+        <div class="summary-row">
+          <span>Monto a Pagar:</span>
+          <strong>{{ formatPrice(cartTotal) }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Método:</span>
+          <strong>{{ getPaymentMethodLabel() }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Confirmación -->
+    <div class="step-content" *ngIf="currentStep === 'confirm'">
+      <h2>Confirma tu Pedido</h2>
+      <div class="confirm-box">
+        <div class="confirm-section">
+          <h3>📦 Pedido</h3>
+          <p>{{ cartItems.length }} producto{{ cartItems.length > 1 ? 's' : '' }} | Subtotal: <strong>{{ formatPrice(cartTotal) }}</strong></p>
+          <p>Envío: <strong>{{ getShippingLabel(cartTotal, currency) }}</strong></p>
+          <p>Total final: <strong>{{ formatPrice(getOrderTotal(cartTotal, currency)) }}</strong></p>
+        </div>
+
+        <div class="confirm-section">
+          <h3>🚚 Envío</h3>
+          <p>
+            <strong>{{ customerInfo.fullName }}</strong><br>
+            {{ customerInfo.address }}<br>
+            {{ customerInfo.city }}<br>
+            {{ customerInfo.phone }}
+          </p>
+        </div>
+
+        <div class="confirm-section">
+          <h3>💳 Pago</h3>
+          <p>Método: <strong>{{ getPaymentMethodLabel() }}</strong></p>
+          <p style="color: #b0b0b0; font-size: 0.9rem; margin-top: 0.5rem;">
+            ✓ La integración real con Nequi se agregará próximamente. Por ahora es un simulador.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="orderError" class="checkout-error">
+    <p>{{ orderError }}</p>
+  </section>
+
+  <!-- Botones de acción -->
+  <section class="checkout-actions">
+    <button class="btn-secondary" (click)="goBack()">
+      {{ currentStep === 'review' ? '← Seguir Comprando' : '← Atrás' }}
+    </button>
+    
+    <button 
+      class="btn-primary" 
+      (click)="nextStep()" 
+      *ngIf="currentStep !== 'confirm'"
+      [disabled]="isProcessing">
+      {{ currentStep === 'payment' ? 'Revisar Pedido' : 'Continuar' }} →
+    </button>
+
+    <button 
+      class="btn-success" 
+      (click)="confirmPurchase()" 
+      *ngIf="currentStep === 'confirm'"
+      [disabled]="isProcessing">
+      {{ isProcessing ? '⏳ Procesando...' : '✓ Confirmar Compra' }}
+    </button>
+  </section>
+</main>

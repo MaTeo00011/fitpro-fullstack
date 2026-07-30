@@ -1,0 +1,131 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="register-header">
+      <h1 class="register-title">Registro de Usuario Gym</h1>
+      <button class="close-register-btn" (click)="goBack()" title="Cerrar registro">✕</button>
+    </div>
+    <p class="register-subtitle">Únete a nuestro gimnasio y comienza tu transformación</p>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+
+      <!-- Nombre y Apellidos -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Nombre</label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            placeholder="Ingresa tu nombre"
+            class="form-input"
+            [class.error]="registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched"
+          >
+        </div>
+        <div class="form-group">
+          <label for="lastName">Apellidos</label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            placeholder="Ingresa tus apellidos"
+            class="form-input"
+            [class.error]="registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched"
+          >
+        </div>
+      </div>
+
+      <!-- Edad y Teléfono -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="age">Edad</label>
+          <input
+            type="number"
+            id="age"
+            formControlName="age"
+            placeholder="Tu edad"
+            class="form-input"
+            [class.error]="registerForm.get('age')?.invalid && registerForm.get('age')?.touched"
+          >
+        </div>
+        <div class="form-group">
+          <label for="phone">Teléfono (WhatsApp)</label>
+          <input
+            type="tel"
+            id="phone"
+            formControlName="phone"
+            placeholder="10 dígitos"
+            class="form-input"
+            [class.error]="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched"
+          >
+        </div>
+      </div>
+
+      <!-- Tipo de Entrenamiento -->
+      <div class="form-group">
+        <label for="trainingType">Tipo de Entrenamiento</label>
+        <select
+          id="trainingType"
+          formControlName="trainingType"
+          (change)="onTrainingTypeChange()"
+          class="form-select"
+        >
+          <option value="general">Entrenador General</option>
+          <option value="personalized">Entrenamiento Personalizado</option>
+        </select>
+        <div *ngIf="registerForm.get('trainingType')?.value === 'personalized' && selectedPersonalizedType" class="personalized-summary">
+          Has seleccionado: <strong>{{ selectedPersonalizedType | titlecase }}</strong>
+        </div>
+      </div>
+
+      <!-- Tipo de Pago -->
+      <div class="form-group">
+        <label for="paymentType">Tipo de Pago</label>
+        <select
+          id="paymentType"
+          formControlName="paymentType"
+          class="form-select"
+        >
+          <option *ngFor="let type of paymentTypes" [value]="type.value">{{ type.label }}</option>
+        </select>
+      </div>
+
+      <!-- Fecha de Inicio -->
+      <div class="form-group">
+        <label for="paymentStart">Fecha de Inicio de Pago</label>
+        <input
+          type="date"
+          id="paymentStart"
+          formControlName="paymentStart"
+          class="form-input"
+        >
+      </div>
+
+      <!-- Botón de Registro -->
+      <button
+        type="submit"
+        class="register-btn"
+        [disabled]="registerForm.invalid"
+      >
+        Registrarme
+      </button>
+    </form>
+  </div>
+
+  <!-- Modal para Entrenamiento Personalizado -->
+  <div class="modal-overlay" *ngIf="showPersonalizedModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2>Entrenamiento Personalizado</h2>
+      <p>Selecciona el tipo de entrenamiento que deseas:</p>
+      <div class="personalized-options">
+        <button
+          *ngFor="let type of personalizedTypes"
+          (click)="confirmPersonalized(type.value)"
+          class="option-btn"
+        >
+          {{ type.label }}
+        </button>
+      </div>
+      <button (click)="closeModal()" class="close-btn">Cerrar</button>
+    </div>
+  </div>
+</div>

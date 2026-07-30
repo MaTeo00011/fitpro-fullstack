@@ -1,0 +1,310 @@
+<div class="landing-container">
+  <header class="landing-header">
+    <div class="landing-brand">💪 FitPro Gym</div>
+    <nav class="landing-nav">
+      <a routerLink="/home">Tienda</a>
+      <a routerLink="/register">Registro</a>
+      <a routerLink="/admin/login">Admin</a>
+    </nav>
+  </header>
+  <div class="landing-hero">
+    <!-- Carrusel de fondo (igual que home) -->
+    <div class="carousel">
+      <div class="carousel-slides">
+        <div
+          class="carousel-slide"
+          *ngFor="let slide of slides; let i = index"
+          [class.active]="i === currentSlide"
+          [style.background-image]="'url(' + slide.image + ')'">
+          <div class="carousel-overlay"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="landing-content">
+      <h1 class="landing-title">💪 FitPro Gym</h1>
+      <p class="landing-subtitle">Tu transformación comienza aquí</p>
+
+      <div class="hero-features">
+        <div class="hero-feature">
+          <span class="feature-icon">🏆</span>
+          <span>Productos Premium</span>
+        </div>
+        <div class="hero-feature">
+          <span class="feature-icon">🚚</span>
+          <span>Envío Gratis</span>
+        </div>
+        <div class="hero-feature">
+          <span class="feature-icon">💯</span>
+          <span>Calidad Garantizada</span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="action-btn primary-btn" (click)="goToRegister()">
+          🏋️‍♂️ Únete al Gym - ¡Gratis!
+        </button>
+        <button class="action-btn secondary-btn" (click)="enterAsUser()">
+          👤 Ya soy miembro
+        </button>
+        <button class="action-btn admin-btn" (click)="enterAsAdmin()">
+          👨‍💼 Administrador
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de beneficios -->
+  <section class="benefits-section">
+    <div class="section-container">
+      <h2 class="section-title">¿Por Qué Elegir FitPro?</h2>
+      <p class="section-subtitle">Descubre por qué miles de atletas confían en nosotros</p>
+
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div class="benefit-icon">💪</div>
+          <h3>Suplementos Premium</h3>
+          <p>Productos de la más alta calidad, probados y certificados para resultados reales.</p>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-icon">🚚</div>
+          <h3>Envío Rápido</h3>
+          <p>Entrega en 24-48 horas en toda Colombia. Envío gratis en compras superiores a $100.000 COP.</p>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-icon">👨‍⚕️</div>
+          <h3>Asesoría Profesional</h3>
+          <p>Equipo de nutricionistas y entrenadores certificados para guiarte en tu transformación.</p>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-icon">💰</div>
+          <h3>Mejores Precios</h3>
+          <p>Precios competitivos sin comprometer la calidad. Ofertas exclusivas para miembros del gym.</p>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-icon">🔒</div>
+          <h3>Pagos Seguros</h3>
+          <p>Múltiples métodos de pago con encriptación SSL. Tu información financiera está protegida.</p>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-icon">↩️</div>
+          <h3>Garantía de Satisfacción</h3>
+          <p>30 días para devoluciones. Si no estás satisfecho, te devolvemos tu dinero.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección de productos destacados -->
+  <section class="featured-section">
+    <div class="section-container">
+      <h2 class="section-title">Productos Más Vendidos</h2>
+      <p class="section-subtitle">Los favoritos de nuestros atletas</p>
+
+      <div class="featured-products">
+        <div class="featured-product">
+          <div class="product-image">
+            <span class="product-emoji">🥤</span>
+          </div>
+          <h4>Proteína Whey Pro</h4>
+          <p>25g de proteína pura por porción</p>
+          <div class="product-price">$49.99 USD</div>
+        </div>
+
+        <div class="featured-product">
+          <div class="product-image">
+            <span class="product-emoji">⚡</span>
+          </div>
+          <h4>Pre-Workout Extreme</h4>
+          <p>Energía explosiva para entrenamientos intensos</p>
+          <div class="product-price">$39.99 USD</div>
+        </div>
+
+        <div class="featured-product">
+          <div class="product-image">
+            <span class="product-emoji">💊</span>
+          </div>
+          <h4>Creatina Monohidrato</h4>
+          <p>Aumenta fuerza y masa muscular</p>
+          <div class="product-price">$29.99 USD</div>
+        </div>
+      </div>
+
+      <div class="cta-section">
+        <button class="cta-button" (click)="enterAsUser()">
+          🛒 Ver Todos los Productos
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección de testimonios -->
+  <section class="testimonials-section">
+    <div class="section-container">
+      <h2 class="section-title">Lo Que Dicen Nuestros Atletas</h2>
+      <p class="section-subtitle">Historias reales de transformación</p>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <p>"FitPro cambió mi vida. En 3 meses gané 8kg de masa muscular y mejoré mi rendimiento en el gym. Los productos son de excelente calidad."</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-avatar">🏋️‍♂️</div>
+            <div class="author-info">
+              <div class="author-name">Carlos Rodríguez</div>
+              <div class="author-title">Atleta Profesional</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <p>"La proteína whey es increíble. Sabe delicioso y me ayuda a recuperarme rápido después de cada entrenamiento. ¡Altamente recomendado!"</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-avatar">💪</div>
+            <div class="author-info">
+              <div class="author-name">María González</div>
+              <div class="author-title">Entrenadora Personal</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <p>"El servicio al cliente es excepcional. Siempre responden rápido y me ayudan con mis dudas sobre nutrición y suplementación."</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-avatar">🏃‍♀️</div>
+            <div class="author-info">
+              <div class="author-name">Ana López</div>
+              <div class="author-title">Maratonista</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección de FAQ -->
+  <section class="faq-section">
+    <div class="section-container">
+      <h2 class="section-title">Preguntas Frecuentes</h2>
+      <p class="section-subtitle">Todo lo que necesitas saber</p>
+
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h4>¿Cómo hago mi pedido?</h4>
+          <p>Regístrate como usuario del gym, navega nuestros productos y agrega al carrito. El pago es seguro y el envío es gratis en compras superiores a $100.000 COP.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>¿Cuánto tarda el envío?</h4>
+          <p>Realizamos envíos en 24-48 horas hábiles en toda Colombia. Para Bogotá y principales ciudades, la entrega es en 24 horas.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>¿Puedo devolver productos?</h4>
+          <p>Sí, tienes 30 días para devoluciones. El producto debe estar en su empaque original y sin usar. Contacta nuestro soporte para iniciar el proceso.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>¿Los productos son seguros?</h4>
+          <p>Todos nuestros suplementos están certificados y cumplen con las normas sanitarias colombianas. Trabajamos solo con proveedores premium.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>¿Ofrecen descuentos?</h4>
+          <p>Sí, miembros del gym reciben descuentos exclusivos. También tenemos ofertas especiales y combos en productos seleccionados.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>¿Necesito ser miembro del gym?</h4>
+          <p>No es obligatorio, pero los miembros reciben beneficios exclusivos como descuentos, asesoría gratuita y acceso prioritario a nuevos productos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div class="footer-container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h3>💪 FitPro Gym</h3>
+          <p>Tu transformación comienza aquí</p>
+        </div>
+
+        <div class="footer-links">
+          <div class="footer-section">
+            <h4>Producto</h4>
+            <a href="#" (click)="enterAsUser()">Tienda</a>
+            <a href="#" (click)="goToRegister()">Únete al Gym</a>
+          </div>
+
+          <div class="footer-section">
+            <h4>Soporte</h4>
+            <a href="mailto:contacto&#64;fitprogym.com">contacto&#64;fitprogym.com</a>
+            <a href="tel:+573001234567">+57 300 123 4567</a>
+          </div>
+
+          <div class="footer-section">
+            <h4>Legal</h4>
+            <a href="#">Política de Privacidad</a>
+            <a href="#">Términos de Servicio</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 FitPro Gym. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+  <div class="modal-overlay" *ngIf="showUserLogin" (click)="closeUserLogin()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>👤 Entrar como Usuario</h2>
+        <button class="close-btn" (click)="closeUserLogin()">×</button>
+      </div>
+
+      <form class="login-form" (ngSubmit)="loginAsUser()">
+        <div class="form-group">
+          <label for="userName">Nombre Completo:</label>
+          <input
+            type="text"
+            id="userName"
+            [(ngModel)]="userName"
+            name="userName"
+            placeholder="Ingresa tu nombre completo"
+            required
+            class="form-input">
+        </div>
+
+        <div *ngIf="userNameError" class="login-error">{{ userNameError }}</div>
+        <div *ngIf="loginError && !userNameError" class="login-error">{{ loginError }}</div>
+
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" (click)="closeUserLogin()">Cancelar</button>
+          <button type="submit" class="login-btn">Entrar</button>
+        </div>
+      </form>
+
+      <div class="register-prompt" *ngIf="showRegisterPrompt">
+        <p>❌ Usuario no encontrado. ¿Quieres registrarte?</p>
+        <div class="register-actions">
+          <button type="button" class="cancel-btn" (click)="cancelRegisterPrompt()">Cancelar</button>
+          <button class="register-link-btn" (click)="goToRegisterFromModal()">🏋️‍♂️ Únete al Gym</button>
+        </div>
+      </div>
+    </div>
+  </div>

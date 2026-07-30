@@ -1,0 +1,48 @@
+<section class="product-detail-page">
+  <div class="breadcrumbs">
+    <a routerLink="/home">Inicio</a>
+    <span>›</span>
+    <span>Detalle de producto</span>
+  </div>
+
+  <div *ngIf="loading">Cargando producto...</div>
+  <div *ngIf="!loading && error" class="error-message">
+    <p>{{ error }}</p>
+    <button class="button-secondary" (click)="goBack()">Volver a la tienda</button>
+  </div>
+
+  <div *ngIf="!loading && product" class="detail-card">
+    <div class="image-wrapper">
+      <img *ngIf="product.image; else iconBlock" [src]="product.image" [alt]="product.name" class="detail-image">
+      <ng-template #iconBlock>
+        <div class="detail-image" style="display:flex;align-items:center;justify-content:center;font-size:4rem;">{{ product.icon }}</div>
+      </ng-template>
+    </div>
+    <div class="detail-content">
+      <h1 class="detail-title">{{ product.name }}</h1>
+      <div class="detail-meta">
+        <span class="meta-pill">{{ product.category || 'Sin categoría' }}</span>
+        <span class="meta-pill">{{ product.stock > 0 ? product.stock + ' disponibles' : 'Agotado' }}</span>
+        <span class="meta-pill">{{ formatPrice(product.price, product.currency) }}</span>
+      </div>
+      <p class="detail-description">{{ product.description || 'Descripción no disponible.' }}</p>
+
+      <div class="detail-buttons">
+        <button class="button-primary" (click)="addToCart()" [disabled]="product.stock === 0">
+          {{ product.stock === 0 ? 'Agotado' : 'Añadir al carrito' }}
+        </button>
+        <button class="button-secondary" (click)="goToCart()">Ir al carrito</button>
+        <button class="button-secondary" (click)="goBack()">Volver a la tienda</button>
+      </div>
+
+      <div class="detail-note" *ngIf="product.stock === 0">
+        Este producto está agotado actualmente. Puedes revisar otros productos o volver más tarde.
+      </div>
+
+      <div class="detail-legend">
+        <span>• Información completa de producto</span>
+        <span>• Compra con confianza</span>
+      </div>
+    </div>
+  </div>
+</section>

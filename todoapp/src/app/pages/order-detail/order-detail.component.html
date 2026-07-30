@@ -1,0 +1,41 @@
+<section class="order-detail">
+  <div *ngIf="loading">Cargando detalle de orden...</div>
+
+  <div *ngIf="!loading && error" class="error-message">
+    <h2>Error</h2>
+    <p>{{ error }}</p>
+    <a class="back-button" (click)="goBack()">Volver a Home</a>
+  </div>
+
+  <div *ngIf="!loading && order" class="order-info">
+    <div class="order-header">
+      <div>
+        <h2>Detalle de Pedido #{{ order.id || order.orderId }}</h2>
+        <p><strong>Cliente:</strong> {{ order.customerInfo.fullName }}</p>
+        <p><strong>Email:</strong> {{ order.customerInfo.email }}</p>
+        <p><strong>Teléfono:</strong> {{ order.customerInfo.phone }}</p>
+      </div>
+      <div>
+        <p><strong>Fecha:</strong> {{ order.createdAt | date:'medium' }}</p>
+        <p><strong>Pago:</strong> {{ order.customerInfo.paymentMethod | titlecase }}</p>
+        <p><strong>Moneda:</strong> {{ order.currency }}</p>
+      </div>
+    </div>
+
+    <div class="order-items">
+      <h3>Productos</h3>
+      <div *ngFor="let item of order.items" class="order-product">
+        <span>{{ item.name }} x{{ item.quantity }}</span>
+        <span>{{ formatSalePrice(item.price * item.quantity, item.currency) }}</span>
+      </div>
+    </div>
+
+    <div class="order-summary">
+      <p><strong>Subtotal:</strong> {{ formatSalePrice(order.total - order.shippingCost, order.currency) }}</p>
+      <p><strong>Envío:</strong> {{ formatSalePrice(order.shippingCost, order.currency) }}</p>
+      <p><strong>Total:</strong> {{ formatSalePrice(order.total, order.currency) }}</p>
+    </div>
+
+    <a class="back-button" (click)="goBack()">Volver a Home</a>
+  </div>
+</section>

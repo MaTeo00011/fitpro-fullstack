@@ -1,0 +1,101 @@
+<!-- Overlay oscuro (fondo cuando está abierto) -->
+<div 
+  class="cart-overlay" 
+  [class.active]="isOpen"
+  (click)="closeSidebar()">
+</div>
+
+<!-- Sidebar del carrito -->
+<div class="cart-sidebar" [class.open]="isOpen">
+  
+  <!-- Header del carrito -->
+  <div class="cart-header">
+    <h2>🛒 Tu Carrito</h2>
+    <button class="close-btn" (click)="closeSidebar()">✕</button>
+  </div>
+
+  <!-- Contenido del carrito -->
+  <div class="cart-content">
+    
+    <!-- Si el carrito está vacío -->
+    <div class="empty-cart" *ngIf="cartItems.length === 0">
+      <div class="empty-icon">🛒</div>
+      <p>Tu carrito está vacío</p>
+      <small>¡Agrega productos para comenzar!</small>
+    </div>
+
+    <!-- Si hay productos en el carrito -->
+    <div class="cart-items" *ngIf="cartItems.length > 0">
+      <div class="cart-item" *ngFor="let item of cartItems">
+        
+         <!-- Icono o imagen del producto -->
+       <!-- Icono o imagen del producto -->
+        <div class="item-visual" *ngIf="item.image || item.icon">
+          <!-- Imagen pequeña -->
+          <img [src]="item.image" [alt]="item.name" *ngIf="item.image; else showEmoji">
+          <ng-template #showEmoji>
+            <span class="item-icon">{{ item.icon }}</span>
+          </ng-template>
+          
+          <!-- Imagen grande al hacer hover (solo si hay imagen) -->
+          <div class="image-preview-hover" *ngIf="item.image">
+            <img [src]="item.image" [alt]="item.name">
+          </div>
+        </div>
+        
+        <!-- Información del producto -->
+        <div class="item-info">
+          <h4>{{ item.name }}</h4>
+          <p class="item-price">{{ formatPrice(item.price, item.currency) }}</p>
+        </div>
+
+        <!-- Controles de cantidad -->
+        <div class="item-controls">
+          <button 
+            class="qty-btn" 
+            (click)="decreaseQuantity(item.id)"
+            [disabled]="item.quantity <= 1">
+            −
+          </button>
+          <span class="quantity">{{ item.quantity }}</span>
+          <button 
+            class="qty-btn" 
+            (click)="increaseQuantity(item.id)"
+            [disabled]="item.quantity >= item.maxStock">
+            +
+          </button>
+        </div>
+
+       <!-- Subtotal - ACTUALIZADO -->
+      <div class="item-subtotal">
+        {{ getItemSubtotal(item) }}
+      </div>
+
+        <!-- Botón eliminar -->
+        <button class="remove-btn" (click)="removeItem(item.id)">
+          🗑️
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer del carrito (Total y acciones) -->
+  <div class="cart-footer" *ngIf="cartItems.length > 0">
+    
+    <!-- Total - ACTUALIZADO -->
+    <div class="cart-total">
+      <span>Total:</span>
+      <span class="total-amount">{{ formatPrice(cartTotal, getCurrency()) }}</span>
+    </div>
+
+    <!-- Botones de acción -->
+    <button class="checkout-btn" (click)="checkout()">
+      💳 Proceder al Pago
+    </button>
+    
+    <button class="clear-btn" (click)="clearCart()">
+      🧹 Vaciar Carrito
+    </button>
+  </div>
+
+</div>

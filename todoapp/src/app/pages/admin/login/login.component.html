@@ -1,0 +1,16 @@
+<div class="login-page">
+  <h2>Ingreso Administrador</h2>
+  <p>Usuario/admin: <code>admin</code>, contraseña: <code>FitPro2026!</code></p>
+  <form (ngSubmit)="login()" class="login-form">
+    <label>Usuario:</label>
+    <input type="text" [(ngModel)]="username" name="username" required />
+
+    <label>Contraseña:</label>
+    <input type="password" [(ngModel)]="password" name="password" required />
+
+    <button type="submit">Ingresar</button>
+  </form>
+
+  <div *ngIf="errorMessage" class="login-error">{{ errorMessage }}</div>
+  <a routerLink="/home" class="login-back">Volver a la tienda</a>
+</div>
