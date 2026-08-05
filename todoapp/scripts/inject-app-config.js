@@ -1,8 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 
-const outputDir = path.join(__dirname, '..', 'dist', 'todoapp');
-const indexPath = path.join(outputDir, 'index.html');
+const outputDirs = [
+  path.join(__dirname, '..', 'dist', 'todoapp', 'browser'),
+  path.join(__dirname, '..', 'dist', 'todoapp')
+];
+const indexPath = outputDirs
+  .map(dir => path.join(dir, 'index.html'))
+  .find(fs.existsSync);
 const apiBaseUrl = process.env.API_BASE_URL;
 const apiBaseUrlExpression = apiBaseUrl ? JSON.stringify(apiBaseUrl) : 'window.location.origin';
 
