@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const outputDir = path.join(__dirname, '..', 'dist', 'todoapp', 'browser');
+const outputDir = path.join(__dirname, '..', 'dist', 'todoapp');
 const indexPath = path.join(outputDir, 'index.html');
 const apiBaseUrl = process.env.API_BASE_URL;
 const apiBaseUrlExpression = apiBaseUrl ? JSON.stringify(apiBaseUrl) : 'window.location.origin';
