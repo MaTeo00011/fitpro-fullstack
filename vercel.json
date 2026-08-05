@@ -5,8 +5,8 @@
       "src": "todoapp/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "buildCommand": "cd todoapp && npm run build:vercel",
-        "distDir": "dist/todoapp/browser"
+        "buildCommand": "npm run build",
+        "distDir": "todoapp/dist/todoapp/browser"
       }
     },
     {
