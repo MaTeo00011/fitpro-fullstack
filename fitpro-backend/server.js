@@ -136,7 +136,9 @@ const initializeDatabase = async () => {
   }
 };
 
-initializeDatabase();
+if (!useFirestore) {
+  initializeDatabase();
+}
 
 const toCamelCase = row => {
   if (!row) return row;
@@ -724,9 +726,13 @@ app.delete('/api/usuarios/:id', async (req, res) => {
   }
 });
 
-const ADMIN_USER = process.env.ADMIN_USER || 'admin';
-const ADMIN_PASS = process.env.ADMIN_PASS || 'FitPro2026!';
-const JWT_SECRET = process.env.JWT_SECRET || 'fitpro-secret-token-2026';
+const ADMIN_USER = process.env.ADMIN_USER;
+const ADMIN_PASS = process.env.ADMIN_PASS;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!ADMIN_USER || !ADMIN_PASS || !JWT_SECRET) {
+  throw new Error('Faltan variables de entorno obligatorias: ADMIN_USER, ADMIN_PASS, JWT_SECRET');
+}
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION || '12h';
 
 const createToken = payload => jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRATION });
