@@ -2,10 +2,10 @@
   "version": 2,
   "builds": [
     {
-      "src": "todoapp/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "installCommand": "cd todoapp && npm install",
+        "installCommand": "npm install",
         "buildCommand": "cd todoapp && npm run build",
         "distDir": "todoapp/dist/todoapp/browser"
       }
