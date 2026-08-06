@@ -5,9 +5,9 @@
       "src": "todoapp/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "installCommand": "npm install",
-        "buildCommand": "npm run build && mkdir -p out && cp -r dist/todoapp/browser/* out/",
-        "distDir": "out"
+        "installCommand": "cd todoapp && npm install",
+        "buildCommand": "cd todoapp && npm run build",
+        "distDir": "todoapp/dist/todoapp/browser"
       }
     },
     {
